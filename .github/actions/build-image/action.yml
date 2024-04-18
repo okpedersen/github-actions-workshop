@@ -1,0 +1,37 @@
+
+name: Build image
+description: "Build and push an image to ghcr"
+inputs:
+  github_token:
+    description: The Github PAT (github.token)
+    required: true
+  push:
+    description: Should the image be pushed?
+    default: "true"
+    required: false
+outputs:
+    imageName:
+      description: "Name of built image"
+      value: ${{ inputs.push && fromJson(steps.build-push.outputs.metadata)['image.name'] || '' }}
+    digest:
+      description: "Digest of built image"
+      value: ${{ inputs.push && steps.build-push.outputs.digest || '' }}
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+
+    - name: Build and push Docker image
+      id: build-push
+      uses: docker/build-push-action@v5
+      with:
+        push: ${{ inputs.push }}
+        tags: ghcr.io/${{ github.repository }}:latest
