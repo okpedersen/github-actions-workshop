@@ -17,7 +17,7 @@ jobs:
       packages: write
     runs-on: 'ubuntu-latest'
     outputs:
-      imageName: ${{ fromJson(steps.build-push.outputs.metadata)['image.name'] }}
+      imageName: ${{ steps.build-push.outputs.imageName }}
       digest: ${{ steps.build-push.outputs.digest }}
     steps:
       - uses: actions/checkout@v4

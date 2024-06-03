@@ -12,10 +12,12 @@ inputs:
 outputs:
     imageName:
       description: "Name of built image"
-      value: ${{ inputs.push && fromJson(steps.build-push.outputs.metadata)['image.name'] || '' }}
+      value: ${{ inputs.push && steps.set-output.outputs.imageName || null }}
+      #value: ${{ steps.set-output.outputs.imageName }}
     digest:
       description: "Digest of built image"
-      value: ${{ inputs.push && steps.build-push.outputs.digest || '' }}
+      value: ${{ inputs.push && steps.set-output.outputs.digest || null }}
+      #value: ${{ steps.set-output.outputs.digest }}
 runs:
   using: "composite"
   steps:
@@ -46,3 +48,10 @@ runs:
       with:
         push: ${{ inputs.push }}
         tags: ghcr.io/${{ env.DOCKER_IMAGE_NAME }}:latest
+
+    - name: Set output
+      id: set-output
+      shell: bash
+      run: |
+        echo "digest=${{ steps.build-push.outputs.digest }}" >> "$GITHUB_OUTPUT"
+        echo "imageName=${{ fromJson(steps.build-push.outputs.metadata)['image.name'] }}" >> "$GITHUB_OUTPUT"
