@@ -33,20 +33,14 @@ runs:
 
     - name: Use lowercase repository name as docker image name
       shell: bash
-      run:
-        echo "DOCKER_IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
-
-    - name: Test
-      shell: bash
       run: |
-        echo "1: $DOCKER_IMAGE_NAME"
-        echo "2: ${{ env.DOCKER_IMAGE_NAME }}"
+        echo "DOCKER_IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
 
     - name: Build and push Docker image
       id: build-push
       uses: docker/build-push-action@v5
       with:
-        push: ${{ inputs.push }}
+        push: ${{ inputs.push == true }}
         tags: ghcr.io/${{ env.DOCKER_IMAGE_NAME }}:latest
 
     - name: Set output
